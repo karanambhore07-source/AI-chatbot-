@@ -1,0 +1,5 @@
+# Core dependencies for AI_Project.ipynb
+# Install PyTorch CPU build separately using the command in README.md:
+# pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+transformers

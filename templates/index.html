@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#100d13">
+    <meta name="description" content="Karan Ambhore's private personal AI assistant for reports, summaries, and everyday planning.">
+    <title>Karan's Personal AI — Orbit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand-row">
+          <a class="brand" href="/" aria-label="Orbit home">
+            <span class="brand-mark" aria-hidden="true">✦</span>
+            <span>orbit</span>
+          </a>
+          <button class="icon-button sidebar-close" id="close-sidebar" aria-label="Close menu">×</button>
+        </div>
+
+        <button class="new-chat-button" id="new-chat">
+          <span aria-hidden="true">＋</span> New chat <span class="shortcut">⌘ K</span>
+        </button>
+
+        <div class="sidebar-section">
+          <p class="section-label">Workspace</p>
+          <button class="nav-item active"><span class="nav-icon">◉</span> Chat <span class="nav-count">01</span></button>
+          <button class="nav-item" id="export-chat"><span class="nav-icon">↗</span> Export chat</button>
+        </div>
+
+        <div class="sidebar-section chat-section">
+          <div class="section-heading">
+            <p class="section-label">Recent chats</p>
+            <span class="local-indicator" title="Saved in this browser">LOCAL</span>
+          </div>
+          <div class="chat-list" id="chat-list"></div>
+          <p class="empty-chats" id="empty-chats">Your conversations will appear here.</p>
+        </div>
+
+        <div class="sidebar-bottom">
+          <div class="privacy-card">
+            <span class="privacy-icon" aria-hidden="true">◈</span>
+            <div>
+              <strong>Private by design</strong>
+              <p>Your chats stay in this browser. AI runs on your computer.</p>
+            </div>
+          </div>
+          <div class="profile-row">
+            <div class="avatar">K</div>
+            <div class="profile-copy"><strong>Karan Ambhore</strong><span>Personal AI · SmolLM2</span></div>
+            <span class="profile-menu" aria-hidden="true">···</span>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <button class="icon-button menu-button" id="open-sidebar" aria-label="Open menu">☰</button>
+          <div class="model-picker"><span class="status-dot" id="status-dot"></span><span id="model-status">Checking model…</span><span class="chevron">⌄</span></div>
+          <div class="topbar-actions">
+            <span class="privacy-label"><span>◈</span> Runs locally</span>
+            <button class="export-button" id="top-export">Export <span aria-hidden="true">↗</span></button>
+          </div>
+        </header>
+
+        <section class="conversation" id="conversation" aria-live="polite">
+          <div class="welcome" id="welcome">
+            <div class="orbit-art" aria-hidden="true"><span></span><i></i></div>
+            <p class="eyebrow">KARAN'S PERSONAL AI</p>
+            <h1>Hi, Karan.<br><span>What can I help you with?</span></h1>
+            <p class="welcome-copy">Your private assistant for thoughtful reports, clear summaries, and everyday plans.</p>
+            <div class="prompt-grid">
+              <button class="prompt-card" data-action="report">
+                <span class="prompt-icon lavender">✳</span><span class="prompt-title">Write a report</span><span class="prompt-copy">Shape your notes into a clear report</span><span class="prompt-arrow">↗</span>
+              </button>
+              <button class="prompt-card" data-prompt="Help me organize my priorities and make a practical plan for today. Ask what I need to get done.">
+                <span class="prompt-icon peach">⌁</span><span class="prompt-title">Make a plan</span><span class="prompt-copy">Turn your priorities into next steps</span><span class="prompt-arrow">↗</span>
+              </button>
+              <button class="prompt-card" data-prompt="Summarize the notes I provide into key points, decisions, and next steps.">
+                <span class="prompt-icon mint">◌</span><span class="prompt-title">Summarize notes</span><span class="prompt-copy">Find the key points and next steps</span><span class="prompt-arrow">↗</span>
+              </button>
+            </div>
+          </div>
+          <div class="messages" id="messages"></div>
+        </section>
+
+        <div class="composer-wrap">
+          <div class="model-notice" id="model-notice" hidden>
+            <span class="notice-symbol">!</span>
+            <span>The model isn’t installed yet. Download it once to start chatting offline.</span>
+            <code>python download_model.py</code>
+          </div>
+          <form class="composer" id="chat-form">
+            <label class="sr-only" for="message-input">Your message</label>
+            <textarea id="message-input" rows="1" maxlength="4000" placeholder="Ask anything…"></textarea>
+            <div class="composer-footer">
+              <span class="composer-hint"><kbd>Enter</kbd> to send <span class="hint-divider">·</span> <kbd>Shift + Enter</kbd> for a new line</span>
+              <div class="composer-controls">
+                <span class="char-count" id="char-count">0 / 4000</span>
+                <button class="send-button" id="send-button" type="submit" aria-label="Send message" disabled><span aria-hidden="true">↑</span></button>
+              </div>
+            </div>
+          </form>
+          <p class="disclaimer">Review facts and details before sharing an AI-generated report.</p>
+        </div>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

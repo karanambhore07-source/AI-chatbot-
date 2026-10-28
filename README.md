@@ -1,19 +1,24 @@
-# Offline GenAI Chatbot
+# Orbit — Offline GenAI Chatbot
 
-A lightweight **offline Generative AI chatbot** built with Python, PyTorch, and Hugging Face Transformers. The project uses the **SmolLM2-360M-Instruct** language model to generate responses to user questions and maintain short conversational context—all from a locally saved model running on the CPU.
+A lightweight **offline personal AI assistant** built with Python, Flask, PyTorch, and Hugging Face Transformers. Orbit is personalized for **Karan Ambhore** and helps prepare reports, summarize user-provided information, draft writing, and organize plans. Its responsive web interface runs the **SmolLM2-360M-Instruct** model locally on the CPU after its initial download; chat requests are not sent to a hosted AI service.
 
-> **Project status:** Notebook-based prototype. The notebook downloads and saves the model, reloads it in local-only mode, and provides an interactive command-line chat loop. It does not currently include a web UI, API, database, or formal automated tests.
+The original notebook-based setup remains available. The web app adds a local API and a browser UI with saved conversations, conversation export, starter prompts, and an offline-model status indicator.
 
 ## Features
 
 - **Local model inference:** Loads the saved model with `local_files_only=True` after the initial download.
 - **CPU execution:** Runs the model on the CPU using PyTorch; no CUDA GPU is required.
+- **Personal assistant behavior:** Helps Karan draft reports, summarize notes, prepare writing, and organize ideas and plans.
+- **Source-only report mode:** Use `/report` followed by your notes to format a report without asking the language model to invent or expand facts.
+- **Grounded responses:** Instructed not to invent facts or personal details and to be clear when information is missing or uncertain.
 - **Instruction-following chat model:** Uses `HuggingFaceTB/SmolLM2-360M-Instruct`.
-- **Simple teaching-assistant behavior:** System instructions ask the model to explain concepts in simple English, provide examples, and acknowledge uncertainty.
 - **Conversation context:** Includes recent user/assistant messages to support follow-up questions.
 - **Sampling controls:** Uses `temperature=0.7`, `top_p=0.9`, and `repetition_penalty=1.1` during text generation.
-- **Terminal controls:** `/reset` clears the current conversation; `/exit` ends the session.
+- **Original notebook:** The initial teaching-assistant prototype remains available in `AI_Project.ipynb`.
 - **Bounded history:** Retains recent messages to limit how much conversation is passed back to the model.
+- **Responsive web chat:** Runs at `http://127.0.0.1:5000` and works on desktop and mobile screens.
+- **Browser-saved conversations:** Keeps chat history in the current browser using local storage; export a chat as a text file.
+- **Model status:** Shows whether the local model has been downloaded and gives setup guidance if it is missing.
 
 ## How it works
 
@@ -30,36 +35,36 @@ A lightweight **offline Generative AI chatbot** built with Python, PyTorch, and 
 
 | Technology | Purpose |
 |---|---|
-| Python | Application logic |
+| Python and Flask | Local web app and API |
 | PyTorch (`torch`) | Loads and runs the language model |
 | Hugging Face Transformers | Tokenizer, pretrained model, chat template, and text generation |
-| SmolLM2-360M-Instruct | Small instruction-tuned language model |
-| Jupyter Notebook | Development and execution environment |
+| SmolLM2-360M-Instruct | Local instruction-tuned language model |
+| HTML, CSS, and JavaScript | Responsive browser interface |
+| Jupyter Notebook | Original development and terminal workflow |
 
 ## Project structure
 
-After running the notebook's download cell, the project will look similar to this:
-
 ```text
-offline-genai-chatbot/
-├── AI_Project.ipynb       # Main notebook: setup, model loading, generation, and chat loop
-├── README.md              # Project documentation
-└── smollm2_model/          # Created by the notebook; contains locally saved model/tokenizer files
-    ├── config.json
-    ├── generation_config.json   # May be present depending on Transformers/model version
-    ├── model.safetensors
-    ├── tokenizer.json
-    ├── tokenizer_config.json
-    └── ...                      # Other files saved by Hugging Face
+AI-chatbot/
+├── AI_Project.ipynb       # Original notebook and terminal chat loop
+├── app.py                 # Flask web app and chat API
+├── chatbot.py             # Shared local-model loading and text generation
+├── download_model.py      # One-time model download for the web app
+├── requirements.txt
+├── static/                # Browser styles and chat behavior
+├── templates/index.html   # Web chat page
+├── test_app.py            # Web API tests
+└── smollm2_model/         # Downloaded model/tokenizer files (not committed)
 ```
 
-The exact files inside `smollm2_model/` can vary by model and library version. Do not commit large model-weight files to GitHub unless you intentionally want to distribute them and have checked repository size limits and model licensing.
+The exact files inside `smollm2_model/` can vary by model and library version. Model files are excluded from Git by `.gitignore`.
 
 ## Requirements
 
 - Python 3.10 or a compatible Python version supported by the installed PyTorch and Transformers releases
 - `pip`
-- Jupyter Notebook or JupyterLab
+- Flask
+- Jupyter Notebook or JupyterLab (for the original notebook workflow)
 - Internet access for the **initial model download**
 - Sufficient RAM and disk space for the model and Python libraries
 
@@ -80,34 +85,39 @@ Or open `AI_Project.ipynb` directly in Jupyter.
 
 ### 2. Install dependencies
 
-Run these commands in a notebook cell (the notebook uses `%pip`, which is a Jupyter/IPython command):
+For the web app, install PyTorch's CPU build and the remaining project packages:
 
-```python
-%pip install --upgrade pip
-%pip install torch --index-url https://download.pytorch.org/whl/cpu
-%pip install --upgrade transformers
+```powershell
+python -m pip install --upgrade pip
+python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+python -m pip install -r requirements.txt
 ```
 
-If you run the project outside Jupyter, use your environment's package installer instead. The `%pip` syntax will not work in a standard Python script or ordinary terminal.
+For the original notebook workflow, you can also install dependencies in a notebook with `%pip`.
 
-### 3. Download and save the model
+### 3. Download the model
 
-Run the notebook cell that defines:
+From the project directory, run:
 
-```python
-MODEL_ID = "HuggingFaceTB/SmolLM2-360M-Instruct"
-MODEL_DIR = Path("smollm2_model")
+```powershell
+python download_model.py
 ```
 
-That cell downloads the model and tokenizer and saves them to `smollm2_model/`. This step requires internet access and can take some time depending on your connection.
+This first download requires internet access and saves the model and tokenizer into `smollm2_model/`. The web app uses these local files for inference.
 
-### 4. Run local inference
+### 4. Start the web app
 
-Run the cell that loads the tokenizer and model with `local_files_only=True`. It loads the saved files from disk and configures the model for CPU inference.
+```powershell
+python app.py
+```
 
-### 5. Start chatting
+Open [http://127.0.0.1:5000](http://127.0.0.1:5000) in your browser. The model is loaded locally when you send the first message; generation runs on CPU.
 
-Run the notebook cells in order, including the cell that defines `generate_response()` and the final cell that calls `start_chat()`.
+To format a report using only your supplied facts, select **Write a report**, enter `/report` followed by your title and notes, and send it. This report mode formats your notes without using the language model; review the result before sharing.
+
+### 5. Use the original notebook (optional)
+
+Open `AI_Project.ipynb` and run its cells in order to use the original terminal chat workflow.
 
 Example interaction:
 
@@ -150,16 +160,17 @@ The notebook currently defines these generation settings:
 | `repetition_penalty` | `1.1` | Discourages repetitive text |
 | Device | CPU | Runs inference without requiring CUDA |
 
-**History note:** The interactive loop also limits its stored history to 12 message entries. The generation function selects the last six entries from that history list. These are message entries (user or assistant messages), not six complete question-and-answer pairs.
+**History note:** The terminal loop stores up to 12 message entries. Both the notebook and web app pass at most six recent entries to the model; these are individual user or assistant messages, not six complete question-and-answer pairs. The web interface saves conversations in the current browser's local storage.
 
 ## Limitations
 
 - **Model quality:** SmolLM2-360M-Instruct is a compact model. It can produce incorrect, incomplete, or inconsistent answers and may struggle with complex reasoning.
 - **No live web access:** After downloading the model, the chatbot generates answers from the model's learned parameters and provided conversation; it does not search the internet.
-- **No persistent memory:** Chat history exists only while the current chat loop is running. `/reset` clears it, and exiting the program ends the session.
+- **No connected personal accounts or tools:** Orbit can help with information you share in chat, but it does not access your files, email, calendar, or accounts, and cannot perform actions outside the chat.
+- **Browser-local history:** Web chat history is stored in this browser only; the notebook chat history exists only while its terminal loop is running.
 - **Initial internet required:** The first model download requires a connection. The inference-loading cell uses local files, but this does not by itself guarantee that every dependency or notebook operation is fully offline.
 - **CPU performance:** Generation may be slower on lower-powered computers.
-- **No user interface beyond the terminal:** The current notebook does not implement a web app, desktop UI, or REST API.
+- **Local web server:** The development server is intended for use on the same computer, not as a public or production deployment.
 - **No formal evaluation yet:** The notebook does not include a benchmark, automated tests, or a systematic quality evaluation.
 - **No safety or factuality guarantee:** Generated answers should be checked, especially for important decisions.
 
@@ -167,7 +178,7 @@ The notebook currently defines these generation settings:
 
 ### Model files not found
 
-Run the download-and-save cell first and confirm that `smollm2_model/` exists relative to the notebook's current working directory.
+For the web app, run `python download_model.py` from the project directory and confirm that `smollm2_model/` contains the model files. For the notebook workflow, run its download-and-save cell first.
 
 ### Hugging Face model download fails
 
@@ -187,19 +198,15 @@ The function passes at most six recent history entries to the model, while the t
 
 ## Future improvements
 
-- Add a Streamlit or Gradio user interface.
-- Move reusable logic into `src/chatbot.py` and add a separate application entry point.
-- Add a `requirements.txt` with tested dependency versions.
-- Add structured logging and clearer exception messages.
-- Add unit tests for message preparation, history trimming, and generation behavior.
-- Evaluate response quality on a small set of documented questions.
 - Add configurable system prompts and generation parameters.
+- Expand automated tests to cover message formatting and model generation behavior.
+- Evaluate response quality on a small set of documented questions.
 - Explore quantization or other CPU optimizations after measuring memory use and response speed.
 - Add a privacy note explaining that prompts are processed locally during inference, while the initial model download contacts Hugging Face.
 
 ## Responsible use and privacy
 
-The model runs locally after its files have been downloaded, and the notebook does not send each chat question to a hosted inference API. However, the initial download contacts Hugging Face, and this project does not implement a privacy audit or guarantee that other software on the computer cannot access local data. Avoid entering passwords, confidential information, or sensitive personal data.
+The model runs locally after its files have been downloaded, and the web app does not send each chat question to a hosted inference API. Orbit only knows information provided in the current conversation and cannot access personal files or accounts. The initial model download contacts Hugging Face, and this project does not implement a privacy audit or guarantee that other software on the computer cannot access local data. Avoid entering passwords, confidential information, or sensitive personal data.
 
 ## Author
 
